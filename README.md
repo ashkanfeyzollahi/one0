@@ -118,9 +118,9 @@ Hello
 ## How It Works (Technical Breakdown)
 
 * Parses command-line arguments using **argp** to get the source file path.
-* Reads the entire source file into memory using `fgeteof()`.
+* Reads the source file into an array of strings, one per line, using `fgetline()`.
 * Allocates program memory buffer of size `PROGMEMLIMIT`.
-* Tokenizes source code by lines, then by spaces/whitespace.
+* Tokenizes source code lines by spaces/whitespace.
 * Converts binary strings to bytes using `bin_to_ch()`:
   * Each 8-bit binary string becomes a single byte
   * First token is the opcode (function index)
