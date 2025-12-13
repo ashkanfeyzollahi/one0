@@ -157,24 +157,53 @@ char **strtoks(const char *__s, const char *__delim)
     return out;
 }
 
-char *fgeteof(FILE *__stream)
+char *fgetline(FILE *__stream)
 {
-    char *fc = NULL;
+    char *line = NULL;
     char buffer[1024];
-    size_t fc_size = 0;
+    size_t line_size = 0;
 
-    while (fgets(buffer, sizeof(buffer), __stream) != NULL)
+    while (fgets(buffer, sizeof buffer, __stream) != NULL)
     {
-        size_t new_size = fc_size + strlen(buffer) + 1;
-        fc = xrealloc(fc, new_size);
-        fc = strcat(fc, buffer);
-        fc_size = new_size;
+        size_t buffer_size = strlen(buffer);
+
+        size_t new_size = line_size + buffer_size;
+
+        line = (char *)xrealloc(line, new_size + 1);
+        memcpy(line + line_size, buffer, buffer_size);
+        line_size = new_size;
+        line[line_size] = '\0';
+
+        if (line_size > 0 && line[line_size - 1] == '\n')
+        {
+            line[--line_size] = '\0';
+            break;
+        }
     }
 
     if (ferror(__stream))
         panic(NULL);
 
-    return fc;
+    return line;
+}
+
+char **fgetlines(FILE *__stream)
+{
+    char **lines = NULL;
+    size_t lines_count = 0;
+    char *line = fgetline(__stream);
+
+    while (line != NULL)
+    {
+        lines = (char **)xrealloc(lines, sizeof(char *) * (lines_count + 1));
+        lines[lines_count++] = line;
+        line = fgetline(__stream);
+    }
+
+    lines = (char **)xrealloc(lines, sizeof(char *) * (lines_count + 1));
+    lines[lines_count++] = NULL;
+
+    return lines;
 }
 
 char bin_to_ch(const char *s)
@@ -229,9 +258,8 @@ void eval_line(const char *line)
         panic(cstrerror());
 }
 
-void eval_prog(const char *code)
+void eval_prog(char **lines)
 {
-    char **lines = strtoks(code, "\n");
     size_t lines_count = 0;
 
     while (lines[lines_count++] != NULL)
@@ -240,6 +268,9 @@ void eval_prog(const char *code)
 
     for (int i = 0; lines[i] != NULL; i++)
     {
+        if (strcmp(lines[i], "") == 0)
+            continue;
+
         eval_line(lines[i]);
 
         if (goto_ > lines_count)
@@ -272,11 +303,11 @@ int main(int argc, char **argv)
     if (f == NULL)
         panic(NULL);
 
-    char *fc = fgeteof(f);
+    char **proglines = fgetlines(f);
 
     progmem = (char *)xmalloc(PROGMEMLIMIT);
     memset(progmem, 0, PROGMEMLIMIT);
-    eval_prog(fc);
+    eval_prog(proglines);
 
     fclose(f);
 
