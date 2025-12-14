@@ -1,8 +1,8 @@
 CC ?= gcc
-CFLAGS ?= -Wall -Werror
+CFLAGS ?= -Wall -Werror -Iinclude
 CFLAGS += $(EXTRA_CFLAGS)
 OUTPUT ?= bin/one0
-SOURCE ?= src/*.c
+SOURCE ?= $(shell find src -name "*.c")
 
 
 $(OUTPUT): $(SOURCE)
