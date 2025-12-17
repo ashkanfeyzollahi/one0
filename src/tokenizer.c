@@ -5,7 +5,7 @@
 
 char **strtoks(const char *__s, const char *__delim)
 {
-    char *copy = strdup(__s);
+    char *copy = xstrdup(__s);
 
     size_t count = 0;
     char **out = NULL;
