@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 #include "error.h"
@@ -47,10 +48,8 @@ void gc_list_remove_ptr(void *ptr)
 
 void collect_garbages()
 {
-    for (int i = 0; i < gc_list_.count; i++)
-    {
+    for (size_t i = 0; i < gc_list_.count; i++)
         free(gc_list_.items[i]);
-    }
     gc_list_.count = 0;
     free(gc_list_.items);
 }
