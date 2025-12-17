@@ -56,7 +56,7 @@ char **fgetlines(FILE *__stream)
 
 char bin_to_ch(const char *s)
 {
-    char ch;
+    char ch = 0;
     size_t slen = strlen(s);
 
     if (slen > 8)
