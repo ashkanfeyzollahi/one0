@@ -6,5 +6,6 @@
 void xfree(void *__ptr);
 void *xmalloc(size_t __size);
 void *xrealloc(void *__ptr, size_t __size);
+char *xstrdup(const char *__s);
 
 #endif
